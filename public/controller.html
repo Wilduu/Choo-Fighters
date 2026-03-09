@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controller</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: #4ade80;
+        }
+
+        #name-input-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #player-name-input {
+            font-size: 24px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid #22c55e;
+            background: #1a1a1a;
+            color: #4ade80;
+            width: 80%;
+        }
+
+        #character-select {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .char-btn {
+            margin: 10px;
+            padding: 20px;
+            font-size: 24px;
+            background-color: #22c55e;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            width: 80%;
+        }
+
+        #controls {
+            display: none;
+            flex: 1;
+            display: flex;
+        }
+
+        .action-btn {
+            flex: 1;
+            font-size: 40px;
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 10px;
+            border-radius: 20px;
+            color: white;
+        }
+
+        #btn-dive {
+            background-color: #3b82f6;
+        }
+
+        /* Blue for dive */
+        #btn-kick {
+            background-color: #ef4444;
+        }
+
+        /* Red for kick */
+        .action-btn:active {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="name-input-screen">
+        <h2>Enter Your Name</h2>
+        <input type="text" id="player-name-input" placeholder="Your Name" maxlength="10">
+        <button id="join-btn" class="char-btn">Join Game</button>
+    </div>
+
+    <div id="character-select">
+        <h2>Select Character</h2>
+        <button class="char-btn" data-char="mo">Mo (Egyptian, Hawaiian Shirt)</button>
+        <button class="char-btn" data-char="andrew">Andrew (German, DJ, Nerd)</button>
+        <button class="char-btn" data-char="hatem">Hatem (Tunesian, Tall, Dad Cap, Stubble, Jeans)</button>
+        <button class="char-btn" data-char="max">Max (Danish, Stoner, Nerd Glasses)</button>
+        <button class="char-btn" data-char="jon">Jon (French, White T-Shirt, Small Afro)</button>
+    </div>
+
+    <div id="controls" style="display: none;">
+        <button id="btn-dive" class="action-btn">Dive</button>
+        <button id="btn-kick" class="action-btn">Kick</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="controller.js"></script>
+</body>
+
+</html>

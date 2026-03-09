@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weed Fighters</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>Weed Fighters: Host Display</h1>
+        <div id="connection-info">
+            <p>Connect your phone to <strong>http://&lt;local-ip&gt;:3000/controller.html</strong></p>
+            <div id="players-list"></div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js?v=3"></script>
+</body>
+
+</html>

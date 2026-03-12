@@ -19,7 +19,11 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="game.js?v=3"></script>
+    <script>var BUILD_TS = Date.now();</script>
+    <script id="game-script"></script>
+    <script>
+        document.getElementById('game-script').src = 'game.js?v=' + BUILD_TS;
+    </script>
 </body>
 
 </html>

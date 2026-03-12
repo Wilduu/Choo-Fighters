@@ -22,6 +22,14 @@ io.on('connection', (socket) => {
         if (data.type === 'host') {
             socket.join('host_room');
             console.log('Host registered');
+            // Replay all currently connected controllers to this late-joining host
+            for (const sid in players) {
+                const p = players[sid];
+                socket.emit('controller_connected', { socketId: sid, playerId: p.id, name: p.name });
+                if (p.character) {
+                    socket.emit('player_selected_character', { playerId: p.id, character: p.character });
+                }
+            }
         } else if (data.type === 'controller') {
             const playerId = nextPlayerId++;
             players[socket.id] = { id: playerId, character: null, name: data.name || `P${playerId}` };

@@ -1,117 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Controller</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Choo Fighters — Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #1a1a1a;
-            color: #4ade80;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green: #22c55e;
+            --green-bright: #4ade80;
+            --green-glow: rgba(34,197,94,0.4);
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface2: #1a1a28;
         }
 
-        #name-input-screen {
+        html, body {
+            width: 100%; height: 100%; overflow: hidden;
+            background: var(--bg);
+            color: var(--green-bright);
+            font-family: 'Rajdhani', sans-serif;
+            touch-action: none;
+        }
+
+        /* ─── NAME INPUT SCREEN ─── */
+        #name-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
+            gap: 24px;
+            padding: 40px 24px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.12) 0%, transparent 70%), var(--bg);
         }
 
-        #player-name-input {
-            font-size: 24px;
-            padding: 10px;
-            margin-bottom: 20px;
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--green);
+            text-shadow: 0 0 20px var(--green-glow), 0 0 40px var(--green-glow);
+            letter-spacing: 2px;
             text-align: center;
-            border-radius: 8px;
-            border: 2px solid #22c55e;
-            background: #1a1a1a;
-            color: #4ade80;
-            width: 80%;
+        }
+        .logo span { color: #fff; }
+
+        .subtitle {
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.5;
         }
 
-        #character-select {
+        .name-field {
+            width: 100%;
+            position: relative;
+        }
+        .name-field input {
+            width: 100%;
+            padding: 16px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            background: var(--surface2);
+            border: 2px solid rgba(34,197,94,0.3);
+            border-radius: 12px;
+            color: #fff;
+            text-align: center;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .name-field input:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 4px var(--green-glow), inset 0 0 20px rgba(34,197,94,0.05);
+        }
+        .name-field input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .join-btn {
+            width: 100%;
+            padding: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 24px var(--green-glow);
+            transition: transform .1s, box-shadow .1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .join-btn:active { transform: scale(0.97); box-shadow: 0 0 12px var(--green-glow); }
+
+        /* ─── CHARACTER SELECT SCREEN ─── */
+        #char-screen {
             display: none;
             flex-direction: column;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 30%, rgba(34,197,94,0.08) 0%, transparent 65%), var(--bg);
+        }
+
+        .cs-header {
+            display: flex;
             align-items: center;
             justify-content: center;
+            padding: 16px;
+            gap: 10px;
+        }
+        .cs-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        /* Carousel stage */
+        .carousel-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glow halo behind character preview */
+        .char-glow {
+            position: absolute;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.25) 0%, transparent 70%);
+            pointer-events: none;
+            transition: opacity .3s;
+        }
+
+        /* Individual character slides */
+        .char-slide {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s;
+            will-change: transform, opacity;
+        }
+        .char-slide img {
+            max-height: 55vw;
+            max-width: 55vw;
+            object-fit: contain;
+            image-rendering: pixelated;
+            /* subtle bob animation */
+            animation: idleBob 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.7));
+        }
+        @keyframes idleBob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Arrow nav */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px; height: 64px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 10px;
+            color: var(--green);
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 10;
+            -webkit-tap-highlight-color: transparent;
+            transition: background .15s;
+        }
+        .arrow-btn:active { background: rgba(34,197,94,0.2); }
+        #arrow-left  { left: 10px; }
+        #arrow-right { right: 10px; }
+
+        /* Character info panel */
+        .char-info {
+            padding: 12px 24px 0;
+            text-align: center;
+            min-height: 72px;
+        }
+        .char-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 14px var(--green-glow);
+            transition: opacity .2s;
+        }
+        .char-desc {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--green-bright);
+            opacity: 0.7;
+            margin-top: 4px;
+            transition: opacity .2s;
+        }
+
+        /* Dot nav */
+        .dot-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 0;
+        }
+        .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: background .25s, transform .25s;
+        }
+        .dot.active {
+            background: var(--green);
+            transform: scale(1.4);
+            box-shadow: 0 0 6px var(--green);
+        }
+
+        /* Select button */
+        .select-btn {
+            margin: 0 20px 24px;
+            padding: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 30px var(--green-glow), 0 4px 20px rgba(0,0,0,0.5);
+            transition: transform .1s, box-shadow .1s;
+            -webkit-tap-highlight-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px var(--green-glow), 0 4px 20px rgba(0,0,0,0.5); }
+            50%       { box-shadow: 0 0 50px rgba(34,197,94,0.6), 0 4px 20px rgba(0,0,0,0.5); }
+        }
+        .select-btn:active { transform: scale(0.97); animation: none; box-shadow: 0 0 12px var(--green-glow); }
+
+        /* ─── FIGHT SCREEN ─── */
+        #fight-screen {
+            display: none;
+            flex-direction: column;
             height: 100%;
         }
 
-        .char-btn {
-            margin: 10px;
-            padding: 20px;
-            font-size: 24px;
-            background-color: #22c55e;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            width: 80%;
+        .player-tag {
+            background: var(--surface);
+            border-bottom: 1px solid rgba(34,197,94,0.15);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .player-tag img {
+            height: 40px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+        .player-tag-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            color: #fff;
+        }
+        .player-tag-char {
+            font-size: 12px;
+            color: var(--green-bright);
+            opacity: 0.7;
+            letter-spacing: 1px;
         }
 
-        #controls {
-            display: none;
+        .fight-btns {
             flex: 1;
             display: flex;
+            gap: 12px;
+            padding: 12px;
         }
 
-        .action-btn {
+        .fight-btn {
             flex: 1;
-            font-size: 40px;
             border: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 10px;
             border-radius: 20px;
-            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform .05s, filter .05s;
         }
+        .fight-btn:active { transform: scale(0.95); filter: brightness(0.85); }
 
         #btn-dive {
-            background-color: #3b82f6;
+            background: linear-gradient(160deg, #1d4ed8, #3b82f6);
+            box-shadow: 0 0 30px rgba(59,130,246,0.4), 0 4px 20px rgba(0,0,0,0.5);
         }
-
-        /* Blue for dive */
         #btn-kick {
-            background-color: #ef4444;
+            background: linear-gradient(160deg, #b91c1c, #ef4444);
+            box-shadow: 0 0 30px rgba(239,68,68,0.4), 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        /* Red for kick */
-        .action-btn:active {
-            opacity: 0.7;
-        }
+        .btn-icon { font-size: 44px; }
+        .btn-label { font-size: 22px; letter-spacing: 3px; }
+        .btn-hint { font-size: 11px; letter-spacing: 2px; opacity: 0.6; font-family: 'Rajdhani', sans-serif; font-weight: 600; }
     </style>
 </head>
-
 <body>
-    <div id="name-input-screen">
-        <h2>Enter Your Name</h2>
-        <input type="text" id="player-name-input" placeholder="Your Name" maxlength="10">
-        <button id="join-btn" class="char-btn">Join Game</button>
+
+<!-- ─── NAME ENTRY ─── -->
+<div id="name-screen">
+    <div class="logo">CHOO<span>⚡</span>FIGHTERS</div>
+    <p class="subtitle">Enter the arena</p>
+    <div class="name-field">
+        <input type="text" id="player-name-input" placeholder="Your name" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <button class="join-btn" id="join-btn">JOIN GAME</button>
+</div>
+
+<!-- ─── CHARACTER SELECT ─── -->
+<div id="char-screen">
+    <div class="cs-header"><h2>Choose Your Fighter</h2></div>
+
+    <div class="carousel-stage" id="carousel-stage">
+        <div class="char-glow"></div>
+        <button class="arrow-btn" id="arrow-left">&#8249;</button>
+        <button class="arrow-btn" id="arrow-right">&#8250;</button>
+        <!-- slides injected by JS -->
     </div>
 
-    <div id="character-select">
-        <h2>Select Character</h2>
-        <button class="char-btn" data-char="mo">Mo (Egyptian, Hawaiian Shirt)</button>
-        <button class="char-btn" data-char="andrew">Andrew (German, DJ, Nerd)</button>
-        <button class="char-btn" data-char="hatem">Hatem (Tunesian, Tall, Dad Cap, Stubble, Jeans)</button>
-        <button class="char-btn" data-char="max">Max (Danish, Stoner, Nerd Glasses)</button>
-        <button class="char-btn" data-char="jon">Jon (French, White T-Shirt, Small Afro)</button>
+    <div class="char-info">
+        <div class="char-name" id="char-name-label">—</div>
+        <div class="char-desc" id="char-desc-label">—</div>
     </div>
 
-    <div id="controls" style="display: none;">
-        <button id="btn-dive" class="action-btn">Dive</button>
-        <button id="btn-kick" class="action-btn">Kick</button>
-    </div>
+    <div class="dot-nav" id="dot-nav"></div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="controller.js"></script>
+    <button class="select-btn" id="select-btn">FIGHT!</button>
+</div>
+
+<!-- ─── FIGHT CONTROLS ─── -->
+<div id="fight-screen">
+    <div class="player-tag">
+        <img id="fight-char-img" src="" alt="">
+        <div>
+            <div class="player-tag-name" id="fight-player-name"></div>
+            <div class="player-tag-char" id="fight-char-name"></div>
+        </div>
+    </div>
+    <div class="fight-btns">
+        <button id="btn-dive" class="fight-btn">
+            <span class="btn-icon">🦘</span>
+            <span class="btn-label">DIVE</span>
+            <span class="btn-hint">HOLD to rise · TAP again for double jump</span>
+        </button>
+        <button id="btn-kick" class="fight-btn">
+            <span class="btn-icon">💥</span>
+            <span class="btn-label">KICK</span>
+            <span class="btn-hint">In-air dive kick · On-ground hop back</span>
+        </button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="controller.js?v=4"></script>
 </body>
-
 </html>
